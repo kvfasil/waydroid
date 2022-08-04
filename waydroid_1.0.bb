@@ -36,7 +36,7 @@ do_install () {
 	
 }
 
-RDEPENDS_${PN} = "python python3 python3-pip lxc python3-pkgconfig python3-pycairo cairo"
+RDEPENDS_${PN} = "python python3 python3-pip lxc python3-pkgconfig python3-pycairo python3-pygobject"
 
 FILES_${PN} = " \
 	${libdir}/${PYTHON_DIR}/site-packages/* \
