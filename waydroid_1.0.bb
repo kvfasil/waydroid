@@ -1,46 +1,52 @@
 SUMMARY = "Waydroid implementation on RDK stack"
 
-LICENSE = "GPLv3"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464"
+LICENSE = "CLOSED"
+PV = "1.3.3"
 
-PV = "1.2.1"
-
-#SRC_URI = "https://github.com/waydroid/waydroid/archive/refs/tags/1.2.1.zip;protocol=http"
 SRC_URI = "https://github.com/waydroid/waydroid/archive/refs/tags/${PV}.zip;protocol=http"
-
-SRC_URI[md5sum] = "4efcca75f63421af37a504512e262be6"
-SRC_URI[sha256sum] = "f64f2b8914fe83885901588feb53695b994d762531f7fe6b990d7c12118cd574"
+ 
+SRC_URI[md5sum] = "4f477d6397b333d6fbff953606ea3a1c"
+SRC_URI[sha256sum] = "98340888e31c4c033db613bcdb45d8884700acf03458bf46b84dac3e1e771714"
+ 
+RDEPENDS_${PN} = "python python3 python3-pip lxc python3-pkgconfig python3-pycairo python3-pygobject"
 
 S = "${WORKDIR}/${PN}-${PV}"
 PYTHON_DIR = "python3.8"
 
-do_install () {
-	install -d ${D}${bindir}
-	install -d ${D}${libdir}	
-	install -d ${D}${sysconfdir}	
-	install -d ${D}${libdir}/waydroid 
-	install -d ${D}${libdir}/${PYTHON_DIR}/site-packages 
-	install -d ${D}${systemd_unitdir}/system
-	
-	install -m 0755 ${S}/waydroid.py ${D}${libdir}/waydroid/
-	install -m 0755 ${S}/gbinder/anbox.conf ${D}${sysconfdir}/gbinder.d
-	
-	cp -r ${S}/tools/ ${D}${libdir}/${PYTHON_DIR}/site-packages
-	cp -r ${S}/data/ ${D}${libdir}/${PYTHON_DIR}/site-packages
-	cp -r ${S}/gbinder/ ${D}${libdir}/${PYTHON_DIR}/site-packages
+PREFIX = "/usr"
+WAYDROID_DIR = "${PREFIX}/lib/waydroid"
+BIN_DIR = "${PREFIX}/bin"
+APPS_DIR = "${PREFIX}/share/applications"
+METAINFO_DIR = "${PREFIX}/share/metainfo"
+SYSD_DIR = "${PREFIX}/lib/systemd/system"
 
-	chmod -R 755 ${D}${libdir}/waydroid/
+INSTALL_WAYDROID_DIR = "${D}${WAYDROID_DIR}"
+INSTALL_BIN_DIR = "${D}${BIN_DIR}"
+INSTALL_APPS_DIR = "${D}${APPS_DIR}"
+INSTALL_METAINFO_DIR = "${D}${METAINFO_DIR}"
+INSTALL_SYSD_DIR = "${D}${SYSD_DIR}"
 
-	ln -s -r ${D}${libdir}/waydroid/waydroid.py ${D}${bindir}/waydroid
-	install -m 0644 ${S}/debian/waydroid-container.service ${D}${systemd_unitdir}/system/waydroid-container.service
-	
+
+do_install() {
+
+
+install -d ${INSTALL_WAYDROID_DIR} ${INSTALL_BIN_DIR} ${INSTALL_APPS_DIR} ${INSTALL_METAINFO_DIR}
+cp -a ${S}/data ${S}/tools ${S}/waydroid.py ${INSTALL_WAYDROID_DIR}
+ln -sf ${WAYDROID_DIR}/waydroid.py ${INSTALL_BIN_DIR}/waydroid
+mv ${INSTALL_WAYDROID_DIR}/data/*.desktop ${INSTALL_APPS_DIR}
+mv ${INSTALL_WAYDROID_DIR}/data/*.metainfo.xml ${INSTALL_METAINFO_DIR}
+
+install -d ${INSTALL_SYSD_DIR}
+cp ${S}/systemd/waydroid-container.service ${INSTALL_SYSD_DIR}
+
 }
 
-RDEPENDS_${PN} = "python python3 python3-pip lxc python3-pkgconfig python3-pycairo python3-pygobject"
 
 FILES_${PN} = " \
-	${libdir}/${PYTHON_DIR}/site-packages/* \
-	${bindir}/waydroid \
+  /usr/bin/* \
+  /usr/lib/* \
+  /usr/share/metainfo/* \
+  /usr/share/applications/* \
+  /usr/lib/waydroid/* \
 	${systemd_unitdir}/system/waydroid-container.service \
-	${libdir}/waydroid/* \
 "
