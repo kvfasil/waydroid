@@ -10,20 +10,17 @@ SRC_URI[sha256sum] = "5d0ebdd1dc323aa87e371aff05f7dd7d18777475b99261335d034779ab
 
 S = "${WORKDIR}/${PN}-${PV}"
 PYTHON_DIR = "python3.8"
+DEPENDS          = "python3-native"
+RDEPENDS_${PN} = "python python3 python3-pip python3-cython libgbinder libglibutil"
 
-do_install () {
-	install -d ${D}${bindir}
-	install -d ${D}${libdir}	
-	install -d ${D}${sysconfdir}	
-	install -d ${D}${libdir}/waydroid 
-	install -d ${D}${libdir}/${PYTHON_DIR}/site-packages 
-	install -d ${D}${systemd_unitdir}/system
-	
-	
+
+DEPENDS = "python3 python3-cython python3-cython-native libgbinder libglibutil"
+RDEPENDS:${PN} = " python3-requests python3-multiprocessing python3-image python3-json "
+RRECOMMENDS:${PN} = " python3-pillow "
+
+#inherit pkgconfig lib_package setuptools distutils     #py2 - working solution
+inherit pkgconfig lib_package setuptools3       
+
+do_compile () {
+     python3 ${S}/setup.py build_ext --inplace
 }
-
-RDEPENDS_${PN} = "python python3 python3-pip python3-cython"
-
-FILES_${PN} = " \
-	${libdir}/${PYTHON_DIR}/site-packages/* \
-"
