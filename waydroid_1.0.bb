@@ -1,46 +1,32 @@
-SUMMARY = "Waydroid implementation on RDK stack"
-
+DESCRIPTION = "Run a full Android system in a container and provide Android applications on any GNU/Linux-based platform."
+HOMEPAGE = "https://waydro.id/"
 LICENSE = "CLOSED"
-PV = "1.3.3"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=1ebbd3e34237af26da5dc08a4e440464"
 
-SRC_URI = "https://github.com/waydroid/waydroid/archive/refs/tags/${PV}.zip;protocol=http"
- 
-SRC_URI[md5sum] = "4f477d6397b333d6fbff953606ea3a1c"
-SRC_URI[sha256sum] = "98340888e31c4c033db613bcdb45d8884700acf03458bf46b84dac3e1e771714"
- 
-RDEPENDS_${PN} += "glib-2.0 python python3 python3-pip lxc python3-pkgconfig python3-pycairo python3-pygobject"
+SRCREV = "cd0a81cf28bfa990bb85d660c239a9e45bcb48a6"
 
-S = "${WORKDIR}/${PN}-${PV}"
-PYTHON_DIR = "python3.8"
+SRC_URI = "git://github.com/waydroid/waydroid.git;protocol=https;branch=main"
+SRC_URI[sha256sum] = "c85bc0e4f44417c429d799008d3444e1045785e82f96efb2cddbd812b9633f61"
 
-PREFIX = "/usr"
-WAYDROID_DIR = "${PREFIX}/lib/waydroid"
-BIN_DIR = "${PREFIX}/bin"
-APPS_DIR = "${PREFIX}/share/applications"
-METAINFO_DIR = "${PREFIX}/share/metainfo"
-SYSD_DIR = "${PREFIX}/lib/systemd/system"
+S = "${WORKDIR}/git"
+EXTRA_OECMAKE = ""
+DEPENDS += "python python3 python3-pip lxc python3-pkgconfig python3-pycairo python3-pygobject"
+#RDEPENDS_${PN} += "glib-2.0 libglibutil libgbinder gbinder-python"
 
-INSTALL_WAYDROID_DIR = "${D}${WAYDROID_DIR}"
-INSTALL_BIN_DIR = "${D}${BIN_DIR}"
-INSTALL_APPS_DIR = "${D}${APPS_DIR}"
-INSTALL_METAINFO_DIR = "${D}${METAINFO_DIR}"
-INSTALL_SYSD_DIR = "${D}${SYSD_DIR}"
-
-
-do_install() {
-
-
-install -d ${INSTALL_WAYDROID_DIR} ${INSTALL_BIN_DIR} ${INSTALL_APPS_DIR} ${INSTALL_METAINFO_DIR}
-cp -a ${S}/data ${S}/tools ${S}/waydroid.py ${INSTALL_WAYDROID_DIR}
-ln -sf ${WAYDROID_DIR}/waydroid.py ${INSTALL_BIN_DIR}/waydroid
-mv ${INSTALL_WAYDROID_DIR}/data/*.desktop ${INSTALL_APPS_DIR}
-mv ${INSTALL_WAYDROID_DIR}/data/*.metainfo.xml ${INSTALL_METAINFO_DIR}
-
-install -d ${INSTALL_SYSD_DIR}
-cp ${S}/systemd/waydroid-container.service ${INSTALL_SYSD_DIR}
-
+do_configure () {
+    # Specify any needed configure commands here
+    :
 }
 
+do_compile () {
+    # You will almost certainly need to add additional arguments here
+	:
+}
+
+do_install () {
+    oe_runmake install DESTDIR=${D} SBINDIR=${sbindir} MANDIR=${mandir} INCLUDEDIR=${includedir}	
+    oe_runmake install_apparmor DESTDIR=${D} SBINDIR=${sbindir} MANDIR=${mandir} INCLUDEDIR=${includedir}	
+}
 
 FILES_${PN} = " \
   /usr/bin/* \
@@ -48,5 +34,6 @@ FILES_${PN} = " \
   /usr/share/metainfo/* \
   /usr/share/applications/* \
   /usr/lib/waydroid/* \
-	${systemd_unitdir}/system/waydroid-container.service \
+        ${systemd_unitdir}/system/waydroid-container.service \
 "
+
